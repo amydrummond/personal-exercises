@@ -1,0 +1,101 @@
+
+## Let's pull up the nickname file and make it a list of lists.
+with open("C:/Users/Amy/Dropbox/RFH/Data/Code/College University Nicknames.csv", "r") as nicknames_file:
+	univ_nicknames = nicknames_file.read().replace("\xa0", "").replace("\x96","-").split("\n")
+
+for index, univ in enumerate(univ_nicknames):
+	univ_nicknames[index] = univ.split(",")
+	
+#First we're going to divide up the first field into individual parts. We'll need some empty lists.
+first_nicknames = []
+nickname_and_university = []
+count_nicknames = len(univ_nicknames)
+
+#Go through the full list. If there's just one item (no pipe), but the pair into a new list of lists.
+#Otherwise, pair additional nicknames with the related university.
+for number in range(0,count_nicknames-1):
+        univ_paring = univ_nicknames[number]
+        nick = univ_paring[0]
+        univ_names = univ_paring[1]
+        start = 0
+        finish = nick.find("|")+1
+        count_pipes = nick.count("|")
+        if nick.find("|")<0:
+                first_nicknames.append(univ_paring)
+        else:
+                for pipes in range(0,count_pipes):
+                        start = 0
+                        finish = nick.find("|")+1
+                        nickname = nick[start:finish]
+                        pairing = []
+                        pairing.append(nickname)
+                        pairing.append(univ_paring[1])
+                        first_nicknames.append(pairing)
+                        start = finish
+                        finish = nick.find("|",start)
+                        if finish <0:
+                                nick = nick[start:]
+                                pairing = []
+                                pairing.append(nick)
+                                pairing.append(univ_paring[1])
+                                first_nicknames.append(pairing)
+                        else:
+                                nick = nick[start:finish]
+
+#Now we have a new list, with one item for each of the unique nicknames. But we need one for each unique
+#university as well.
+
+count_new_nicknames = len(first_nicknames)
+
+for num in range(0, count_new_nicknames-1):
+        univ_pairing = first_nicknames[num]
+        nick = univ_pairing[0]
+        univ_names = univ_pairing[1]
+        start = 0
+        finish = univ_names.find("|")+1
+        count_pipes = univ_names.count("|")
+        if univ_names.find("|")<0:
+                        nickname_and_university.append(univ_pairing)
+        else:
+                for pipes in range(0,count_pipes):
+                        start = 0
+                        finish = univ_names.find("|")
+                        name = univ_names[start:finish]
+                        pairing =[]
+                        pairing.append(nick)
+                        pairing.append(name)
+                        nickname_and_university.append(pairing)
+                        start = finish
+                        finish = univ_names.find("|", start+1)
+                        if univ_names.find("|", start+1) <0:
+                                univ_names = univ_names[start+1:]
+                                pairing = []
+                                pairing.append(nick)
+                                pairing.append(univ_names)
+                                nickname_and_university.append(pairing)
+                        else:
+                                univ_names = univ_names[start+1:]
+                                
+
+count_final = len(nickname_and_university)
+
+#Clean these up - take out remaining pipes, trim, take out paranthetical remarks and print to file.
+
+for count in range(0, count_final-1):
+        nickname_reference = nickname_and_university[count]
+        nickname = nickname_reference[0]
+        university = nickname_reference[1]
+        nickname = nickname.replace("|","")
+        nickname = nickname.strip()
+        university = university.replace("|","")
+        university = university.strip()
+        if university.find("(")>0:
+                paren = university.find("(")
+                university = university[:paren]
+                university = university.strip()
+        else:
+                university = university
+        with open("C:/Users/Amy/Dropbox/RFH/Data/Code/College University Nicknames Cleaned.txt", "a") as the_file:
+                the_file.write("{0}\t{1}\n".format(nickname, university))
+        
+        
